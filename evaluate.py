@@ -21,33 +21,33 @@ class Evaluator:
 
     @staticmethod
     def mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Mean Absolute Error."""
+        # Mean Absolute Error (MAE) nikalne ke liye - Average kitna error aa raha hai bina direction ke
         return float(mean_absolute_error(y_true, y_pred))
 
     @staticmethod
     def mse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Mean Squared Error."""
+        # Mean Squared Error (MSE) calculate karne ke liye - Bade errors ko zyada penalty deta hai
         return float(mean_squared_error(y_true, y_pred))
 
     @staticmethod
     def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Root Mean Squared Error."""
+        # Root Mean Squared Error (RMSE) nikal rahe - Error scale standard units me lane ke liye
         return float(np.sqrt(mean_squared_error(y_true, y_pred)))
 
     @staticmethod
     def r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """R² (coefficient of determination)."""
+        # R-squared (R²) score nikal rahe hain - Model variance kitna explain kar pa raha hai (0 se 1 tak)
         return float(r2_score(y_true, y_pred))
 
     @staticmethod
     def residual_std(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Standard deviation of residuals (used for confidence intervals)."""
+        # Residuals ka Standard Deviation nikal rahe hain (app me confidence interval calculate karne ke kaam aayega)
         residuals = y_true - y_pred
         return float(np.std(residuals, ddof=1))
 
     @staticmethod
     def report(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-        """Return a dict with all metrics."""
+        # Saare evaluation metrics ka single python dictionary return karega
         metrics = {
             "mae": Evaluator.mae(y_true, y_pred),
             "mse": Evaluator.mse(y_true, y_pred),
@@ -68,7 +68,7 @@ class Evaluator:
     def compare_models(
         results: Dict[str, Dict[str, float]],
     ) -> str:
-        """Pretty-print a comparison table of multiple models."""
+        # Alag alag models ko aapas me compare karne ke liye simple tabular layout output
         lines = []
         lines.append(f"{'Model':<20} {'MAE':>8} {'RMSE':>8} {'R²':>8} {'Res Std':>8}")
         lines.append("-" * 56)

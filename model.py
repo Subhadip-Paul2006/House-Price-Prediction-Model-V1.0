@@ -40,21 +40,18 @@ class ArtifactStore:
         algorithm_name: str = "linear_regression",
         run_id: Optional[str] = None,
     ) -> str:
-        """Persist model, preprocessor, and metrics to disk.
-
-        Returns the artifact directory path.
-        """
+        # Agar run_id nahi mila toh timestamp ko hi name bana denge folder ka
         if run_id is None:
             run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         artifact_dir = os.path.join(MODEL_DIR, algorithm_name, run_id)
         os.makedirs(artifact_dir, exist_ok=True)
 
-        # Save model + preprocessor as a single joblib bundle
+        # Model aur preprocessor ko single joblib dictionary bundle me pack karke write kar rahe hain
         bundle_path = os.path.join(artifact_dir, "model.joblib")
         joblib.dump({"model": model, "preprocessor": preprocessor}, bundle_path)
 
-        # Save metrics as JSON
+        # Metrics (R2, MAE, etc.) ko readable format me store karne ke liye
         metrics_path = os.path.join(artifact_dir, "metrics.json")
         with open(metrics_path, "w") as f:
             json.dump(metrics, f, indent=2)
@@ -67,14 +64,11 @@ class ArtifactStore:
         algorithm_name: str = "linear_regression",
         run_id: Optional[str] = None,
     ) -> Tuple[Any, Any, Dict[str, float]]:
-        """Load the latest (or specified) artifact bundle.
-
-        Returns (model, preprocessor, metrics_dict).
-        """
+        # Train script ke artifacts load karne ka method
         algo_dir = os.path.join(MODEL_DIR, algorithm_name)
 
         if run_id is None:
-            # Pick the most recent complete run (containing model.joblib)
+            # Pura folder scan karke check karo kaunsa run complete hai (jahan model.joblib present ho)
             if not os.path.isdir(algo_dir):
                 raise FileNotFoundError(
                     f"No artifacts found for '{algorithm_name}'. Run train.py first."
@@ -88,7 +82,7 @@ class ArtifactStore:
                 raise FileNotFoundError(
                     f"No valid run directories (containing model.joblib) in '{algo_dir}'. Run train.py first."
                 )
-            run_id = run_dirs[-1]  # latest valid run by name (timestamp-sorted)
+            run_id = run_dirs[-1]  # Sabse latest complete run select kar rahe hain
 
         artifact_dir = os.path.join(algo_dir, run_id)
         bundle_path = os.path.join(artifact_dir, "model.joblib")
@@ -97,6 +91,7 @@ class ArtifactStore:
         if not os.path.exists(bundle_path):
             raise FileNotFoundError(f"Bundle not found at {bundle_path}")
 
+        # Model file parse kar rahe hain joblib ke through
         bundle = joblib.load(bundle_path)
         model = bundle["model"]
         preprocessor = bundle["preprocessor"]
@@ -111,7 +106,7 @@ class ArtifactStore:
 
     @staticmethod
     def version(algorithm_name: str) -> str:
-        """Return the latest run-id (version tag) for the given algorithm."""
+        # UI sidebar me version name print karne ke liye method
         algo_dir = os.path.join(MODEL_DIR, algorithm_name)
         if not os.path.isdir(algo_dir):
             return "none"
@@ -140,7 +135,7 @@ class Predictor:
         self.residual_std = residual_std
 
     def predict(self, features: Dict[str, Any]) -> float:
-        """Transform a feature dict and return the predicted price (Lakhs)."""
+        # Input parameters ko dataframe me daalkar transform karenge aur model se predict karayenge
         X = self._features_to_dataframe(features)
         X_encoded = self.preprocessor.transform(X)
         price = float(self.model.predict(X_encoded)[0])
@@ -148,16 +143,15 @@ class Predictor:
         return price
 
     def confidence(self, features: Dict[str, Any]) -> Tuple[float, float, float]:
-        """Return (price, lower_bound, upper_bound) with 95 % confidence band."""
+        # Price estimate ke sath safe limits (Confidence interval) nikal rahe hain (+/- 1.96 * Residual standard deviation)
         price = self.predict(features)
-        margin = 1.96 * self.residual_std   # 95 % CI
+        margin = 1.96 * self.residual_std   # 95% Confidence Band
         return price, max(price - margin, 0.0), price + margin
 
     def _features_to_dataframe(self, features: Dict[str, Any]) -> "pd.DataFrame":
-        """Convert a flat dict into a 1-row DataFrame matching training schema."""
+        # Streamlit input widgets ki raw dict values ko dataframe columns me format karne ke liye
         import pandas as pd
 
-        # Ensure all expected columns are present
         row = {}
         for col in ["Area", "Bedrooms", "Bathrooms", "Age", "Location"]:
             row[col] = features.get(col, 0)

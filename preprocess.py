@@ -21,6 +21,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 logger = logging.getLogger(__name__)
 
 # ── Column groups ──────────────────────────────────────────────────────
+# Kaunse columns numeric hain, kaunse categorical hain, aur target kya hai, yahan define kiya hai
 NUMERIC_COLS = ["Area", "Bedrooms", "Bathrooms", "Age"]
 CATEGORICAL_COLS = ["Location"]
 TARGET_COL = "Price"
@@ -37,19 +38,19 @@ class HouseData:
         self.df: Optional[pd.DataFrame] = None
 
     def load(self) -> pd.DataFrame:
-        """Read the CSV into a DataFrame and store it."""
+        # CSV file load karke pandas dataframe me convert kar rahe hain
         self.df = pd.read_csv(self.path)
         logger.info("Loaded %d rows × %d columns from %s", *self.df.shape, self.path)
         return self.df
 
     def info(self) -> None:
-        """Print DataFrame info (dtypes, non-null counts)."""
+        # DataFrame ka structural overview check karne ke liye
         if self.df is None:
             self.load()
         self.df.info()
 
     def describe(self) -> pd.DataFrame:
-        """Return summary statistics."""
+        # Pura statistics (mean, count, min, max) dekhne ke liye
         if self.df is None:
             self.load()
         return self.df.describe()
@@ -79,21 +80,21 @@ class Preprocessor:
         """
         cleaned = df.copy()
 
-        # Drop rows with missing target
+        # Agar actual price hi nahi diya toh row delete kar do (warna model train kaise hoga?)
         n_before = len(cleaned)
         cleaned = cleaned.dropna(subset=[TARGET_COL])
         n_dropped = n_before - len(cleaned)
         if n_dropped:
             logger.info("Dropped %d rows with missing '%s'", n_dropped, TARGET_COL)
 
-        # Impute numeric columns with median
+        # Numeric columns me jahan blank tha wahan median daal rahe hain
         for col in NUMERIC_COLS:
             if col in cleaned.columns and cleaned[col].isnull().any():
                 median_val = cleaned[col].median()
                 cleaned = cleaned.assign(**{col: cleaned[col].fillna(median_val)})
                 logger.info("Imputed '%s' NaN → median %.2f", col, median_val)
 
-        # Impute categorical columns with mode
+        # Categorical location blank ho toh most common location (mode) fill kar rahe hain
         for col in CATEGORICAL_COLS:
             if col in cleaned.columns and cleaned[col].isnull().any():
                 mode_val = cleaned[col].mode()[0]
@@ -107,17 +108,17 @@ class Preprocessor:
         """Add derived features to the DataFrame."""
         df = df.copy()
 
-        # Price per square foot (only if target exists — training time)
+        # Area ke hisab se price per sqft check kar rahe hain (Sirf training data ke liye)
         if TARGET_COL in df.columns and "Area" in df.columns:
             df["Price_Per_SqFt"] = df[TARGET_COL] / df["Area"]
 
-        # Age bucket for non-linear age effects
+        # Age ko buckets me split kiya taaki non-linear impact seekh sake model (New, Modern, etc)
         if "Age" in df.columns:
             bins = [0, 5, 10, 20, 50]
             labels = ["New", "Modern", "Old", "Very_Old"]
             df["Age_Bucket"] = pd.cut(df["Age"], bins=bins, labels=labels, include_lowest=True)
 
-        # Bedrooms-to-bathrooms ratio
+        # Bedrooms vs Bathrooms ka ratio (Ghar kitna dynamic/spacious hai)
         if "Bedrooms" in df.columns and "Bathrooms" in df.columns:
             df["BedBath_Ratio"] = df["Bedrooms"] / df["Bathrooms"].replace(0, 1)
 
@@ -130,11 +131,11 @@ class Preprocessor:
         test_size: float = 0.2,
         seed: int = 42,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-        """Train/test split with a fixed seed for reproducibility."""
+        # Data split kar rahe hain: 80% Training ke liye, 20% Testing ke liye
         return train_test_split(X, y, test_size=test_size, random_state=seed)
 
     def fit_transform(self, X_train: pd.DataFrame) -> np.ndarray:
-        """Fit scalers/encoders on training data and return transformed array."""
+        # Preprocessing setup run karke fit kar rahe hain (sirf train set par)
         self._build_transformer()
         X_encoded = self.column_transformer.fit_transform(X_train)
         self._fitted = True
@@ -142,7 +143,7 @@ class Preprocessor:
         return X_encoded
 
     def transform(self, X: pd.DataFrame) -> np.ndarray:
-        """Transform new data using the already-fitted transformer."""
+        # Naye data (e.g., users input) ko model-ready input array me convert karne ke liye
         if not self._fitted:
             raise RuntimeError("Preprocessor not fitted — call fit_transform() first.")
         return self.column_transformer.transform(X)
@@ -150,11 +151,9 @@ class Preprocessor:
     # ── Internals ──────────────────────────────────────────────────────
 
     def _build_transformer(self) -> None:
-        """Build a sklearn ColumnTransformer for numeric + categorical columns.
-
-        Numeric: impute (median) → scale (StandardScaler)  [via Pipeline]
-        Categorical: one-hot encode (ignore unknowns at inference time)
-        """
+        # sklearn ka standard ColumnTransformer pipeline set kar rahe hain
+        # 1. Numeric -> Standard Scaler lagao
+        # 2. Categorical -> One Hot Encoding lagao
         from sklearn.pipeline import Pipeline
 
         self.column_transformer = ColumnTransformer(
@@ -163,7 +162,7 @@ class Preprocessor:
                     "num",
                     Pipeline(
                         steps=[
-                            ("imputer", SimpleImputer(strategy="median")),  # safety net
+                            ("imputer", SimpleImputer(strategy="median")),  # Double safety
                             ("scaler", StandardScaler()),
                         ]
                     ),
