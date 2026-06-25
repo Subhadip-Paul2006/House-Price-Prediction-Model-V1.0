@@ -92,9 +92,8 @@ secrets.json
 # ML artifacts (trained models, data)
 # ─────────────────────────────────────────────
 models/*.pkl
-models/*.joblib
+
 *.pkl
-*.joblib
 data/processed/
 data/raw/*.csv
 
