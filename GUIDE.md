@@ -27,9 +27,10 @@
 18. [Git Graph](#-git-graph)
 19. [XY Charts](#-xy-charts)
 20. [Pie Charts](#-pie-charts)
-21. [Quick Start — 3 Commands](#-quick-start--3-commands)
-22. [Common Modifications & Experiments](#-common-modifications--experiments)
-23. [Troubleshooting Cheat-Sheet](#-troubleshooting-cheat-sheet)
+21. [ML Theory & Design Decisions — Why This, Not That](#-ml-theory--design-decisions--why-this-not-that)
+22. [Quick Start — 3 Commands](#-quick-start--3-commands)
+23. [Common Modifications & Experiments](#-common-modifications--experiments)
+24. [Troubleshooting Cheat-Sheet](#-troubleshooting-cheat-sheet)
 
 ---
 
@@ -1027,7 +1028,218 @@ pie showData
 
 ---
 
-## 🚀 Quick Start — 3 Commands
+## 🎓 ML Theory & Design Decisions — Why This, Not That
+
+> The diagrams above show *how* the project works. This section explains *why* each choice was made — the minimum theory you need to understand the decisions, written for someone new to ML.
+
+### 📐 1. Linear Regression — The Straight-Line Model
+
+**The core idea:** Linear Regression draws the **best straight line** through your data points. It assumes price changes **proportionally** with each feature.
+
+```
+Predicted Price = (w₁ × Area) + (w₂ × Bedrooms) + (w₃ × Bathrooms) + (w₄ × Age) + ... + bias
+```
+
+Each `w` is a **weight** (coefficient) the model learns during training. For example, if Area's weight is `0.035`, it means *each extra square foot adds ~₹0.035 L to the price*.
+
+```mermaid
+flowchart LR
+    subgraph LR["🔵 Linear Regression"]
+        direction TB
+        L1["Input: 16 features (X)"]
+        L2["Multiply each by learned weight wᵢ<br/>Price = Σ(wᵢ × xᵢ) + bias"]
+        L3["Output: 1 number (price)"]
+        L1 --> L2 --> L3
+    end
+
+    style LR fill:#e3f2fd
+```
+
+| ✅ Pros | ❌ Cons |
+|---------|---------|
+| Extremely fast to train & predict | Assumes linear relationships only |
+| **Interpretable** — weights tell you each feature's impact | Can predict negative prices (we clamp to 0) |
+| No hyperparameters to tune | Underfits when real patterns are curved/complex |
+| Great baseline to compare against | Sensitive to outliers & unscaled features |
+
+**In this project:** Linear Regression is the **baseline**. Despite its simplicity it scores **R² = 0.9442** because the synthetic price formula is mostly linear (price scales with area, rooms, quality). Read the weights to see exactly what drives price.
+
+---
+
+### 🌲 2. Random Forest — The Wisdom of 200 Trees
+
+**The core idea:** Instead of one model, build **200 decision trees**, each trained on a random slice of the data, then **average** their predictions. This is an **ensemble** method.
+
+```mermaid
+flowchart TB
+    subgraph RF["🌲 Random Forest (200 trees)"]
+        direction TB
+        Data["Training Data<br/>800 houses"]
+        Data --> T1["Tree 1<br/>learns on random subset"]
+        Data --> T2["Tree 2<br/>learns on random subset"]
+        Data --> T3["Tree 3<br/>... "]
+        Data --> T200["Tree 200<br/>learns on random subset"]
+        T1 --> P1["predicts ₹78 L"]
+        T2 --> P2["predicts ₹73 L"]
+        T3 --> P3["predicts ₹75 L"]
+        T200 --> P200["predicts ₹74 L"]
+        P1 & P2 & P3 & P200 --> AVG["⭐ AVERAGE<br/>≈ ₹75 L"]
+    end
+
+    style RF fill:#e8f5e9
+    style AVG fill:#4CAF50,color:#fff
+```
+
+A single **decision tree** is like a flowchart of yes/no questions ("Is area > 1500? → Is location = Downtown? → …"). One tree easily **overfits** (memorizes noise). Averaging many trees cancels out the noise — this is called **bagging** (Bootstrap Aggregating).
+
+| ✅ Pros | ❌ Cons |
+|---------|---------|
+| Captures **non-linear** patterns automatically | Slower to train (200 trees vs 1 line) |
+| Robust to outliers & unscaled features | Less interpretable (a black box of trees) |
+| Built-in `feature_importances_` shows what matters | Larger file size (~MB vs KB) |
+| Rarely overfits if trees are deep enough | Can still overfit on tiny datasets |
+
+**In this project:** Random Forest scores **R² = 0.9257** — slightly *lower* than Linear Regression here because the data is largely linear. It shines when the data has complex interactions. It also powers the **Feature Importance** chart in the app.
+
+---
+
+### 🌐 3. Why Streamlit? (And Not Flask / Django / Gradio / Dash)
+
+**Streamlit** turns a Python script into an interactive web app with **zero HTML/CSS/JS** — you write pure Python and it renders widgets.
+
+```mermaid
+flowchart LR
+    subgraph Decision["Framework Decision"]
+        Q{"Need a web app<br/>for an ML model?"}
+        Q -->|"Yes — solo dev,<br/>fast prototyping"| Streamlit["✅ Streamlit"]
+        Q -->|"Need REST API<br/>for other apps"| FastAPI["FastAPI"]
+        Q -->|"Full website<br/>(users, auth, DB)"| Django["Django"]
+        Q -->|"Data dashboard<br/>with callbacks"| Dash["Dash"]
+    end
+
+    style Streamlit fill:#4CAF50,color:#fff
+```
+
+| Framework | Best for | Why we rejected it for this project |
+|-----------|----------|--------------------------------------|
+| ✅ **Streamlit** | ML demos, dashboards, internal tools | Chosen — fastest path from model to UI |
+| Flask | Traditional web servers | Requires writing HTML templates & routes by hand |
+| Django | Full websites with auth/DB | Massive overkill — no users/DB needed |
+| FastAPI | High-performance REST APIs | Great for serving models, but no built-in UI |
+| Dash | Interactive data dashboards | Callback model is more verbose; Streamlit is simpler |
+| Gradio | Quick ML model demos | Good alternative, but Streamlit's layout control is richer |
+
+**The decision rationale (ADR-002):** Single-author project needing an instant UI. Streamlit gives you sliders, charts, file download buttons, and a multi-tab layout in **one file** with **no boilerplate**. The trade-off: less control over routing and styling — acceptable at this scale.
+
+---
+
+### 💾 4. Why joblib? (And Not Pickle)
+
+Both serialize Python objects to disk, but **joblib is purpose-built for scikit-learn models**.
+
+```mermaid
+flowchart LR
+    Model["Trained Model<br/>(large NumPy arrays)"]
+    Model -->|"joblib.dump()"| JLB["✅ model.joblib<br/>• Optimized for NumPy<br/>• Preserves dtype<br/>• ~3× faster + smaller"]
+    Model -->|"pickle.dump()"| PKL["❌ model.pkl<br/>• Generic Python objects<br/>• Slower on big arrays<br/>• Can mangle NumPy dtypes"]
+
+    style JLB fill:#4CAF50,color:#fff
+    style PKL fill:#ef5350,color:#fff
+```
+
+| Criteria | `joblib` ✅ | `pickle` ❌ |
+|----------|-----------|-----------|
+| **NumPy arrays** | Native, optimized storage | Generic; slower & bigger |
+| **scikit-learn** | Officially recommended | "works" but discouraged |
+| **Speed** | Faster for models with big arrays | Slower |
+| **File size** | Smaller (uses compression) | Larger |
+| **Security** | Same risk as pickle (only load trusted files) | Same risk |
+| **Std library** | Needs `pip install joblib` | Built-in |
+
+**The decision rationale (ADR-003):** scikit-learn models are essentially wrappers around NumPy arrays (the trained weights). `joblib` serializes those arrays efficiently and is the [officially recommended](https://scikit-learn.org/stable/modules/model_persistence.html) persistence tool for sklearn. Pickle would work but waste space and time.
+
+> ⚠️ **Security note for both:** never `load()` a `.joblib`/`.pkl` file from an untrusted source — both can execute arbitrary code on load. Only load artifacts you trained yourself.
+
+---
+
+### 🧩 5. What Category of AI/ML Is This Model?
+
+This is a common point of confusion. Here's where the project sits in the AI landscape:
+
+```mermaid
+flowchart TB
+    AI["🤖 Artificial Intelligence<br/>(broad umbrella)"]
+    AI --> ML["🧠 Machine Learning<br/>(learn patterns from data)"]
+    ML --> Sup["📊 Supervised Learning<br/>(labeled examples: X → y)"]
+    Sup --> Reg["🎯 Regression<br/>(predict a NUMBER)"]
+    Reg --> OURS["⭐ THIS PROJECT<br/>House Price = continuous number"]
+
+    ML -.->|"NOT this"| Unsup["Unsupervised<br/>(clustering, no labels)"]
+    ML -.->|"NOT this"| RL["Reinforcement Learning<br/>(reward-based agents)"]
+    AI -.->|"NOT this"| DL["Deep Learning<br/>(neural networks)"]
+    AI -.->|"NOT this"| GenAI["Generative AI<br/>(LLMs, image gen)"]
+
+    style OURS fill:#4CAF50,color:#fff,stroke:#1b4332,stroke-width:3px
+    style Reg fill:#a5d6a7
+    style Sup fill:#81c784
+    style ML fill:#66bb6a,color:#fff
+```
+
+| Buzzword | Is it this project? | Why / why not |
+|----------|:-------------------:|---------------|
+| **Supervised Learning** | ✅ **Yes** | We train on labeled examples (features → known Price) |
+| **Regression** | ✅ **Yes** | Output is a **continuous number** (price), not a category |
+| **Tabular ML** | ✅ **Yes** | Data is a CSV table, not images/text/audio |
+| **Classical ML** | ✅ **Yes** | Uses sklearn's Linear/RF — no neural networks |
+| Deep Learning | ❌ No | No neural nets; tables don't need them |
+| Generative AI (GenAI) | ❌ No | It doesn't *create* text/images; it *predicts* a number |
+| LLM / RAG | ❌ No | No language model, no retrieval, no fine-tuning |
+| AGI (Artificial General Intelligence) | ❌ No | AGI = human-level general AI; this is a narrow, single-task model |
+| Fine-tuning | ❌ No | We train **from scratch** on our CSV, not adapting a pre-trained model |
+| RAG (Retrieval-Augmented Generation) | ❌ No | RAG is for LLMs to fetch documents; irrelevant here |
+
+> **One-line answer:** *This is **supervised tabular regression** using **classical machine learning** (Linear Regression & Random Forest) — **not** deep learning, generative AI, RAG, AGI, or fine-tuning.*
+
+---
+
+### 🔢 6. (Bonus) Why Scale Numbers & Encode Categories?
+
+These two preprocessing steps confuse many beginners — here's the intuition:
+
+**Scaling (StandardScaler):** Puts every numeric feature on the same scale (mean = 0, std = 1). Without it, `Area` (500–5000) would **dwarf** `Bedrooms` (1–6) just because the numbers are bigger, even if bedrooms matter more.
+
+| Feature | Raw | After scaling |
+|---------|----:|:-------------:|
+| Area | 1800 | +0.10 |
+| Bedrooms | 3 | −0.30 |
+| Age | 5 | −0.90 |
+
+**One-Hot Encoding (OneHotEncoder):** ML models only understand **numbers**, but `Location` is text ("Urban"). One-hot turns one text column into N binary columns:
+
+| Location | Downtown | Urban | Suburban | Rural |
+|----------|:--------:|:-----:|:--------:|:-----:|
+| Urban | 0 | **1** | 0 | 0 |
+| Rural | 0 | 0 | 0 | **1** |
+
+> We use `handle_unknown='ignore'` so if a user enters a new neighborhood at prediction time, the model doesn't crash — it just gets all-zeros for that feature.
+
+---
+
+### 🎯 7. (Bonus) How to Read the Metrics
+
+| Metric | Plain-English meaning | Our value | Good when |
+|--------|----------------------|:---------:|-----------|
+| **R²** | "What % of price variation does the model explain?" | **0.94** | Closer to 1.0 (= 100%) |
+| **MAE** | "On average, how many Lakhs off is each prediction?" | **~15 L** | Lower = better |
+| **RMSE** | "Like MAE but punishes big mistakes harder" | **~19 L** | Lower = better |
+| **CV R²** | "Does it generalize to unseen data splits?" | **0.93** | Matches test R² (no overfitting) |
+| **Residual Std** | "Drives the 95% confidence band width (±1.96 × std)" | **~19 L** | Lower = tighter, more confident band |
+
+**Interpreting our R² = 0.94:** The model explains **94% of why house prices vary** in this dataset. The remaining 6% is irreducible noise (the random market fluctuation we deliberately injected in `generate_data.py`).
+
+---
+
+
 
 ```mermaid
 flowchart LR
@@ -1098,6 +1310,8 @@ The app opens at **`http://localhost:8501`**. Stop it with `Ctrl+C`.
 > **Three numbers to remember:** 16 features · 1000 rows · R² ≈ 0.94 (Linear) / 0.93 (Random Forest).
 >
 > **The single most important file to read first:** `train.py` — it shows the entire pipeline wired together top-to-bottom.
+>
+> **If you're new to ML concepts** (linear regression, random forest, why Streamlit/joblib, what "kind" of AI this is), jump to [🎓 ML Theory & Design Decisions](#-ml-theory--design-decisions--why-this-not-that) first — it explains every choice in plain language.
 
 ---
 
