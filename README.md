@@ -8,25 +8,28 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
+> 🚀 **Live App:** Try the deployed app now → **[house-price-prediction-model-v01-subh-raj.streamlit.app](https://house-price-prediction-model-v01-subh-raj.streamlit.app/)**
+
 ---
 
 ## 📑 Table of Contents
 
 1. [Overview](#-overview)
-2. [Key Features](#-key-features)
-3. [Mindmap](#-mindmap)
-4. [Project Structure (Tree View)](#-project-structure-tree-view)
-5. [Capability Quadrant](#-capability-quadrant)
-6. [Feature Priority Quadrant](#-feature-priority-quadrant)
-7. [Performance XY Chart](#-performance-xy-chart)
-8. [Tech Stack](#-tech-stack)
-9. [Installation](#-installation)
-10. [Usage](#-usage)
-11. [Dataset](#-dataset)
-12. [Results](#-results)
-13. [Roadmap](#-roadmap)
-14. [Contributing](#-contributing)
-15. [License](#-license)
+2. [Demo](#-demo)
+3. [Key Features](#-key-features)
+4. [Mindmap](#-mindmap)
+5. [Project Structure (Tree View)](#-project-structure-tree-view)
+6. [Capability Quadrant](#-capability-quadrant)
+7. [Feature Priority Quadrant](#-feature-priority-quadrant)
+8. [Performance XY Chart](#-performance-xy-chart)
+9. [Tech Stack](#-tech-stack)
+10. [Installation](#-installation)
+11. [Usage](#-usage)
+12. [Dataset](#-dataset)
+13. [Results](#-results)
+14. [Roadmap](#-roadmap)
+15. [Contributing](#-contributing)
+16. [License](#-license)
 
 ---
 
