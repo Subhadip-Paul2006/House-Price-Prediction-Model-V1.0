@@ -68,13 +68,13 @@ class Evaluator:
     def compare_models(
         results: Dict[str, Dict[str, float]],
     ) -> str:
-        # Alag alag models ko aapas me compare karne ke liye simple tabular layout output
+        # Bug Fix #19: Guard against missing keys with .get() defaults
         lines = []
         lines.append(f"{'Model':<20} {'MAE':>8} {'RMSE':>8} {'R²':>8} {'Res Std':>8}")
         lines.append("-" * 56)
         for name, m in results.items():
             lines.append(
-                f"{name:<20} {m['mae']:>8.2f} {m['rmse']:>8.2f} "
-                f"{m['r2']:>8.4f} {m['residual_std']:>8.2f}"
+                f"{name:<20} {m.get('mae', 0):>8.2f} {m.get('rmse', 0):>8.2f} "
+                f"{m.get('r2', 0):>8.4f} {m.get('residual_std', 0):>8.2f}"
             )
         return "\n".join(lines)
