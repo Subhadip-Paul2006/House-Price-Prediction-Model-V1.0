@@ -7,6 +7,15 @@
 
 ---
 
+### 🗂️ Project Documentation
+
+| **Core Documents** | **Requirements & Design** | **Guides & Usage** |
+| :--- | :--- | :--- |
+| 🏠 [README.md](README.md) - Project Overview | 📋 [PRD.md](PRD.md) - Product Requirements | 📘 [GUIDE.md](GUIDE.md) - Complete Project Guide |
+| 🏛️ [ARCHITECTURE.md](ARCHITECTURE.md) - System Design | 🔧 [TRD.md](TRD.md) - Technical Requirements | 📖 [USAGE.md](USAGE.md) - Setup & Contribution |
+
+---
+
 ## 📑 Table of Contents
 
 1. [Purpose & Scope](#-purpose--scope)
@@ -36,6 +45,9 @@ This TRD defines **how** the House Price Prediction App is engineered: the compo
 **In scope:** training pipeline, inference service (Streamlit), model artifact storage, evaluation, CI/CD.
 
 **Out of scope:** payment integration, user accounts, multi-tenant isolation (deferred to v2).
+
+> [!NOTE]
+> The target user personas, journey flows, roadmap prioritization, and feature acceptance criteria are documented in [PRD.md](PRD.md).
 
 ---
 
@@ -84,6 +96,9 @@ This TRD defines **how** the House Price Prediction App is engineered: the compo
 | Security | Input bounds validated; no remote code paths |
 | Observability | Structured logs + run metrics per training |
 
+> [!NOTE]
+> These requirements dictate the component relationships and design principles described in [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ---
 
 ## 🔁 System Sequence Diagrams
@@ -112,6 +127,9 @@ sequenceDiagram
     SRC->>API: ingest + train
     API->>DB: save new artifact
 ```
+
+> [!TIP]
+> To understand the dataset columns, training lifecycle stages, and how files connect programmatically, check the [GUIDE.md](GUIDE.md#-how-the-model-is-trained-end-to-end).
 
 ---
 
@@ -385,6 +403,9 @@ flowchart LR
     IMG -->|deploy| Cloud[Streamlit Cloud / Fly.io]
     Rel -->|attach| Artifacts[(model artifacts)]
 ```
+
+> [!TIP]
+> Details on local environment setup, testing steps, package dependencies, and how to create a feature branch for contributions are documented in [USAGE.md](USAGE.md).
 
 ---
 

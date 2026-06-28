@@ -12,6 +12,15 @@
 
 ---
 
+### 🗂️ Project Documentation
+
+| **Core Documents** | **Requirements & Design** | **Guides & Usage** |
+| :--- | :--- | :--- |
+| 🏠 [README.md](README.md) - Project Overview | 📋 [PRD.md](PRD.md) - Product Requirements | 📘 [GUIDE.md](GUIDE.md) - Complete Project Guide |
+| 🏛️ [ARCHITECTURE.md](ARCHITECTURE.md) - System Design | 🔧 [TRD.md](TRD.md) - Technical Requirements | 📖 [USAGE.md](USAGE.md) - Setup & Contribution |
+
+---
+
 ## 📑 Table of Contents
 
 1. [Overview](#-overview)
@@ -36,6 +45,8 @@
 ## 🧭 Overview
 
 The **House Price Prediction App** is a beginner-friendly yet production-ready AI project. It walks through the *complete* machine learning lifecycle — from raw data to a deployed web application. The model learns the relationship between house attributes and sale price using **Linear Regression** (with Random Forest as an intermediate enhancement), and exposes the trained model via a **Streamlit** front-end so non-technical users can get instant price estimates.
+
+This project is engineered based on product requirements in the [PRD.md](PRD.md), technical specifications in the [TRD.md](TRD.md), and system architecture in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 **Why this project?** Real-estate valuation is a classic regression problem with abundant public data, clear success metrics (MAE / RMSE / R²), and tangible real-world utility — making it the ideal sandbox to learn the full ML workflow.
 
@@ -162,6 +173,9 @@ house-price-prediction/
 └── README.md
 ```
 
+> [!NOTE]
+> For a detailed, comprehensive walkthrough of every single file, folder, and their interactions, check out [GUIDE.md](GUIDE.md#-what-every-file--folder-does).
+
 ---
 
 ## 📊 Capability Quadrant
@@ -279,6 +293,9 @@ python train.py
 streamlit run app.py
 ```
 
+> [!TIP]
+> A step-by-step detailed contribution guide, environment configuration, package dependencies, and troubleshooting can be found in [USAGE.md](USAGE.md).
+
 **`requirements.txt`**
 
 ```text
@@ -309,6 +326,9 @@ model = joblib.load("models/linear_regression.pkl")
 estimate = model.predict([[1800, 3, 2, 5]])  # area, beds, baths, age
 print(f"Estimated price: ₹{estimate[0]:,.0f}")
 ```
+
+> [!NOTE]
+> For advanced usage details, side-by-side model comparisons, and interactive charts explanation, see [USAGE.md](USAGE.md#-step-3--run-the-project).
 
 ---
 
@@ -360,6 +380,9 @@ Suggested public sources: Kaggle *House Prices: Advanced Regression Techniques*,
 2. Commit with conventional messages (`feat:`, `fix:`, `docs:`, `test:`).
 3. Open a Pull Request against `develop`.
 4. Ensure `python train.py` runs and the app boots before requesting review.
+
+> [!TIP]
+> Please review our branch naming conventions, pull request lifecycle, and contribution guidelines in [USAGE.md](USAGE.md#-step-4--how-others-can-contribute).
 
 ---
 

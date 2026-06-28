@@ -5,6 +5,15 @@
 
 ---
 
+### 🗂️ Project Documentation
+
+| **Core Documents** | **Requirements & Design** | **Guides & Usage** |
+| :--- | :--- | :--- |
+| 🏠 [README.md](README.md) - Project Overview | 📋 [PRD.md](PRD.md) - Product Requirements | 📘 [GUIDE.md](GUIDE.md) - Complete Project Guide |
+| 🏛️ [ARCHITECTURE.md](ARCHITECTURE.md) - System Design | 🔧 [TRD.md](TRD.md) - Technical Requirements | 📖 [USAGE.md](USAGE.md) - Setup & Contribution |
+
+---
+
 ## 📑 Table of Contents
 
 1. [Introduction — What Is This Project?](#-introduction--what-is-this-project)
@@ -154,6 +163,9 @@ House Price Predictor/
     └── 📄 GUIDE.md            # ← THIS FILE
 ```
 
+> [!NOTE]
+> Read [README.md](README.md) for a general project introduction, [PRD.md](PRD.md) for product requirements, [TRD.md](TRD.md) for technical specs, [ARCHITECTURE.md](ARCHITECTURE.md) for structural diagrams, and [USAGE.md](USAGE.md) for developer setup instructions.
+
 ---
 
 ## 📂 What Every File & Folder Does
@@ -168,6 +180,11 @@ House Price Predictor/
 | 4 | **`train.py`** | 🤖 **Orchestrator** | Wires everything together: load → clean → split → preprocess → train → cross-validate → evaluate → save. CLI: `python train.py --model all` |
 | 5 | **`model.py`** | 💾 **Persistence + Inference** | `ArtifactStore` (save/load/version `.joblib` + `metrics.json`), `Predictor` (wraps model + preprocessor; `predict()` and `confidence()`). |
 | 6 | **`app.py`** | 🌐 **Streamlit UI** | 3 tabs — **Predict**, **Compare**, **Charts** — plus sidebar inputs, PDF/text report download. The only file users interact with. |
+
+> [!NOTE]
+> These modules implement the architectural components described in the system design. See [ARCHITECTURE.md](ARCHITECTURE.md#-components--responsibilities) for their structural relationships and boundaries.
+
+---
 
 ### 📁 Folders
 
@@ -282,6 +299,9 @@ flowchart TD
 | **7. Cross-validate** | 5-fold CV checks for overfitting | `ModelTrainer.cross_validate()` |
 | **8. Evaluate** | Predict on the held-out test set → compute metrics | `Evaluator.report()` in `evaluate.py` |
 | **9. Persist** | `joblib.dump({model, preprocessor})` + `metrics.json` to timestamped folder | `ArtifactStore.save()` in `model.py` |
+
+> [!TIP]
+> The dynamic sequence diagram representing these training pipeline steps is available in [TRD.md](TRD.md#detailed-sequence--training). For details on executing these scripts, see [USAGE.md](USAGE.md#32--train-the-models).
 
 ---
 
@@ -1032,6 +1052,9 @@ pie showData
 
 > The diagrams above show *how* the project works. This section explains *why* each choice was made — the minimum theory you need to understand the decisions, written for someone new to ML.
 
+> [!NOTE]
+> These decisions form the basis of our Architecture Decision Records (ADRs) defined in [ARCHITECTURE.md](ARCHITECTURE.md#️-design-decisions-adr-style).
+
 ### 📐 1. Linear Regression — The Straight-Line Model
 
 **What is it & What is it used for?**
@@ -1371,4 +1394,4 @@ The app opens at **`http://localhost:8501`**. Stop it with `Ctrl+C`.
 
 ---
 
-_GUIDE.md v1.0 — Companion to README · USAGE · PRD · TRD · ARCHITECTURE · Idea · summary._
+_GUIDE.md v1.0 — Companion to [README.md](README.md) · [USAGE.md](USAGE.md) · [PRD.md](PRD.md) · [TRD.md](TRD.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [Idea.md](Idea.md) · summary.md._

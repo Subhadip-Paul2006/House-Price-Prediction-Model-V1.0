@@ -7,6 +7,15 @@
 
 ---
 
+### 🗂️ Project Documentation
+
+| **Core Documents** | **Requirements & Design** | **Guides & Usage** |
+| :--- | :--- | :--- |
+| 🏠 [README.md](README.md) - Project Overview | 📋 [PRD.md](PRD.md) - Product Requirements | 📘 [GUIDE.md](GUIDE.md) - Complete Project Guide |
+| 🏛️ [ARCHITECTURE.md](ARCHITECTURE.md) - System Design | 🔧 [TRD.md](TRD.md) - Technical Requirements | 📖 [USAGE.md](USAGE.md) - Setup & Contribution |
+
+---
+
 ## 📑 Table of Contents
 
 1. [Product Vision](#-product-vision)
@@ -126,6 +135,9 @@ journey
       Tweak features: 4: Sam
       Fork & extend: 5: Sam
 ```
+
+> [!NOTE]
+> Detailed command execution details, environment packages setup, and sync procedures for Sam's journey are detailed in [USAGE.md](USAGE.md).
 
 ---
 
@@ -330,6 +342,9 @@ quadrantChart
 | Time-to-first-prediction | < 3 min from clone | Manual test |
 | Test coverage | ≥ 80% | pytest/coverage CI |
 
+> [!NOTE]
+> Technical SLOs, error budgets, test strategies, and system sequence diagrams for these metrics are defined in [TRD.md](TRD.md#-non-functional-requirements).
+
 ---
 
 ## 📖 User Stories & Acceptance Criteria
@@ -363,6 +378,9 @@ quadrantChart
 **US-6 — Fork & extend** *(Could)*
 > As an ML learner, I want clean docs to fork.
 - ✅ README + notebooks + ARCHITECTURE.md
+
+> [!NOTE]
+> Comprehensive file descriptions and dynamic diagrams are available in [GUIDE.md](GUIDE.md). System design principles are defined in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

@@ -12,6 +12,15 @@
 
 ---
 
+### 🗂️ Project Documentation
+
+| **Core Documents** | **Requirements & Design** | **Guides & Usage** |
+| :--- | :--- | :--- |
+| 🏠 [README.md](README.md) - Project Overview | 📋 [PRD.md](PRD.md) - Product Requirements | 📘 [GUIDE.md](GUIDE.md) - Complete Project Guide |
+| 🏛️ [ARCHITECTURE.md](ARCHITECTURE.md) - System Design | 🔧 [TRD.md](TRD.md) - Technical Requirements | 📖 [USAGE.md](USAGE.md) - Setup & Contribution |
+
+---
+
 ## 📑 Table of Contents
 
 - [Overview Workflow](#-overview-workflow)
@@ -27,6 +36,11 @@
 ## 🔄 Overview Workflow
 
 The complete journey from forking to contributing:
+
+> [!NOTE]
+> This workflow aligns with the product lifecycle defined in [PRD.md](PRD.md#📅-gantt-chart) and the technical training sequence in [TRD.md](TRD.md#detailed-sequence--training).
+
+---
 
 ```mermaid
 flowchart LR
@@ -125,6 +139,11 @@ git push origin main
 ### Why a Virtual Environment?
 
 Virtual environments isolate your project's Python packages from the system-wide installation, preventing version conflicts.
+
+> [!NOTE]
+> A detailed comparison of library layers and dependencies is documented in [TRD.md](TRD.md#🧰-tech-stack).
+
+---
 
 ### Environment Setup Flow
 
@@ -240,6 +259,11 @@ python -c "import streamlit, sklearn, pandas, matplotlib, fpdf; print('All packa
 ## 🚀 Step 3 — Run the Project
 
 ### Execution Pipeline
+
+> [!TIP]
+> For a full walkthrough of the machine learning model training steps (load, clean, split, scale, train, evaluate, persist), refer to [GUIDE.md](GUIDE.md#-how-the-model-is-trained-end-to-end).
+
+---
 
 ```mermaid
 flowchart TD
@@ -585,6 +609,11 @@ flowchart TD
 
 ### File Responsibilities
 
+> [!NOTE]
+> For the complete system context, C4 container models, and class diagrams, refer to [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
 ```mermaid
 flowchart TB
     subgraph Scripts ["🐍 Python Modules"]
@@ -640,7 +669,7 @@ flowchart TB
 
 ---
 
-_USAGE.md v1.0 — Last updated: June 2026_
+_USAGE.md v1.0 — Companion to [README.md](README.md) · [GUIDE.md](GUIDE.md) · [PRD.md](PRD.md) · [TRD.md](TRD.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · Last updated: June 2026_
 
 </div>
 ]]>
