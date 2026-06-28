@@ -345,9 +345,10 @@ Suggested public sources: Kaggle *House Prices: Advanced Regression Techniques*,
 - [x] Core prediction with Linear Regression
 - [x] Streamlit UI + charts
 - [ ] Location-based pricing
-- [ ] Random Forest + model comparison
+- [x] Random Forest
+- [ ] Model comparison
 - [ ] Prediction confidence interval
-- [ ] PDF report download
+- [x] PDF report download
 - [ ] Map integration
 - [ ] Real-estate analytics dashboard
 
